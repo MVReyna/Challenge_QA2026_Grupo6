@@ -1,4 +1,5 @@
 describe('Reservas en Shady Meadows B&B', () => {
+
     beforeEach(() => {
         cy.visit('https://automationintesting.online/')
     })
@@ -11,25 +12,52 @@ describe('Reservas en Shady Meadows B&B', () => {
     })
 
     it('Seleccionar habitacion y abrir el formulario de reserva', () => {
-        cy.get('a[href="#booking"]').click()
+        cy.hacerReserva().then(({ checkin, checkout }) => {
+            cy.get('a[href="#booking"]').click()
+            cy.get(`a[href*="/reservation/1?checkin=${checkin}&checkout=${checkout}"]`).click()
+            cy.get('#doReservation').click()
 
-        cy.get('a[href="/reservation/1?checkin=2026-06-15&checkout=2026-06-16"]').click()
-        cy.get('#doReservation').click()
+        })
+    })
+
+
+    it('Completar el formulario con datos válidos', () => {
+        cy.hacerReserva().then(({ checkin, checkout }) => {
+            cy.get('a[href="#booking"]').click()
+            cy.get(`a[href*="/reservation/1?checkin=${checkin}&checkout=${checkout}"]`).click()
+            cy.get('#doReservation').click()
+
+            cy.get('[placeholder="Firstname"]').type('Juan')
+            cy.get('[placeholder="Lastname"]').type('Perez')
+            cy.get('[placeholder="Email"]').type(`mail${Date.now()}@gmail.com`)
+            cy.get('[placeholder="Phone"]').type('01164666830')
+            cy.get('button.btn-primary.w-100').click()
+        })
+    })
+
+    it('Intentar enviar el formulario con campos vacios ', () => {
+        cy.hacerReserva().then(({ checkin, checkout }) => {
+            cy.get('a[href="#booking"]').click()
+            cy.get(`a[href*="/reservation/1?checkin=${checkin}&checkout=${checkout}"]`).click()
+            cy.get('#doReservation').click()
+
+            cy.get('button.btn-primary.w-100').click()
+        })
 
     })
 
-    it('Completar el formulario con datos válidos (nombre, apellido, email, teléfono y fechas) ', () => {
-        cy.get('a[href="#booking"]').click()
+    it('Ingresar email invalido', () => {
+        cy.hacerReserva().then(({ checkin, checkout }) => {
+            cy.get('a[href="#booking"]').click()
+            cy.get(`a[href*="/reservation/2?checkin=${checkin}&checkout=${checkout}"]`).click()
+            cy.get('#doReservation').click()
 
-        cy.get('a[href="/reservation/1?checkin=2026-06-15&checkout=2026-06-16"]').click()
-        cy.get('#doReservation').click()
-
-        cy.get('[placeholder="Firstname"]').type('Juan')
-        cy.get('[placeholder="Lastname"]').type('Perez')
-        cy.get('[placeholder="Email"]').type(`mail${Date.now()}@gmail.com`)
-        cy.get('[placeholder="Phone"]').type('01164666830')
-        cy.get('button.btn-primary.w-100').click()
-
+            cy.get('[placeholder="Firstname"]').type('Juan')
+            cy.get('[placeholder="Lastname"]').type('Perez')
+            cy.get('[placeholder="Email"]').type(`mail.com`)
+            cy.get('[placeholder="Phone"]').type('01164666830')
+            cy.get('button.btn-primary.w-100').click()
+        })
     })
 
 })
